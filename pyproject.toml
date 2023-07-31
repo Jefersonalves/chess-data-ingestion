@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "chess-data-ingestion"
+version = "0.1.0"
+description = ""
+authors = ["Jefersonalves <ferreira.jefersonn@gmail.com>"]
+readme = "README.md"
+packages = [{include = "chess_data_ingestion"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+chess = "^1.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
