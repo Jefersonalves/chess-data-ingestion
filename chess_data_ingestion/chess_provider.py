@@ -28,21 +28,35 @@ class ChessProvider(BaseProvider):
         ("E20", "Nimzo-Indian Defense", "1. d4 Nf6 2. c4 e6 3. Nc3 Bb4"),
     ]
 
+    events = [
+        ("Rated Bullet game", "60+0"),
+        ("Rated Bullet game", "120+1"),
+        ("Rated Blitz game", "300+0"),
+        ("Rated Blitz game", "300+3"),
+        ("Rated Classical game", "1800+0"),
+        ("Rated Classical game", "1800+5"),
+    ]
+
     def chess_opening(self) -> Tuple[str, str, str]:
         """
-        Randomly returns a Chess Opening  ('eco' , 'nome', 'main_line').
+        Randomly returns a Chess Opening  ('eco' , 'name', 'main_line').
         """
         return self.random_element(self.openings)
+
+    def chess_event(self) -> Tuple[str, str]:
+        """
+        Randomly returns a Chess Event ('name', 'timecontrol').
+        """
+        return self.random_element(self.events)
 
     def chess_game(self) -> Dict[str, Union[str, int]]:
         """
         Randomly returns a Chess Game as a dictionary
         """
         opening = self.chess_opening()
+        event = self.chess_event()
         return {
-            "event": self.random_element(
-                ["Rated Bullet game", "Rated Blitz game", "Rated Classical game"]
-            ),
+            "event": event[0],
             "site": self.random_element(
                 ["https://lichess.org", "https://www.chess.com"]
             ),
@@ -50,7 +64,7 @@ class ChessProvider(BaseProvider):
             "black": self.generator.user_name(),
             "result": self.random_element(["1-0", "0-1", "1/2-1/2"]),
             "utcdate": self.generator.date_between(
-                start_date="-2y", end_date="today"
+                start_date="-1y", end_date="today"
             ).strftime("%Y.%m.%d"),
             "utctime": self.generator.time_object().strftime("%H:%M:%S"),
             "whiteelo": self.random_int(min=1000, max=3000),
@@ -59,7 +73,7 @@ class ChessProvider(BaseProvider):
             "blackratingdiff": self.random_int(min=-100, max=100),
             "eco": opening[0],
             "opening": opening[1],
-            "timecontrol": self.random_element(["60+0", "180+0", "300+0"]),
+            "timecontrol": event[1],
             "termination": self.random_element(["Normal", "Time forfeit", "Abandoned"]),
             "main_line": opening[2],
         }
