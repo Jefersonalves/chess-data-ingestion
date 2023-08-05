@@ -10,6 +10,7 @@ class ChessProvider(BaseProvider):
     Example
     -------
     >>> from faker import Faker
+    >>> fake = Faker('pt_BR')
     >>> fake.add_provider(ChessProvider)
     >>> fake.chess_opening()
         ('B20', 'Sicilian Defense', '1. e4 c5')
@@ -37,6 +38,7 @@ class ChessProvider(BaseProvider):
         """
         Randomly returns a Chess Game as a dictionary
         """
+        opening = self.chess_opening()
         return {
             "event": self.random_element(
                 ["Rated Bullet game", "Rated Blitz game", "Rated Classical game"]
@@ -55,11 +57,11 @@ class ChessProvider(BaseProvider):
             "blackelo": self.random_int(min=1000, max=3000),
             "whiteratingdiff": self.random_int(min=-100, max=100),
             "blackratingdiff": self.random_int(min=-100, max=100),
-            "eco": self.random_element([x[0] for x in self.openings]),
-            "opening": self.random_element([x[1] for x in self.openings]),
+            "eco": opening[0],
+            "opening": opening[1],
             "timecontrol": self.random_element(["60+0", "180+0", "300+0"]),
             "termination": self.random_element(["Normal", "Time forfeit", "Abandoned"]),
-            "main_line": self.random_element([x[2] for x in self.openings]),
+            "main_line": opening[2],
         }
 
     def chess_game_pgn(self) -> str:
