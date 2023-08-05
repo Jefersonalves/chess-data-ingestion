@@ -39,13 +39,13 @@ class ChessProvider(BaseProvider):
 
     def chess_opening(self) -> Tuple[str, str, str]:
         """
-        Randomly returns a Chess Opening  ('eco' , 'name', 'main_line').
+        Randomly returns a Chess Opening  ('eco', 'name', 'moves').
         """
         return self.random_element(self.openings)
 
     def chess_event(self) -> Tuple[str, str]:
         """
-        Randomly returns a Chess Event ('name', 'timecontrol').
+        Randomly returns a Chess Event ('name', 'time_control').
         """
         return self.random_element(self.events)
 
@@ -63,19 +63,19 @@ class ChessProvider(BaseProvider):
             "white": self.generator.user_name(),
             "black": self.generator.user_name(),
             "result": self.random_element(["1-0", "0-1", "1/2-1/2"]),
-            "utcdate": self.generator.date_between(
+            "utc_date": self.generator.date_between(
                 start_date="-1y", end_date="today"
             ).strftime("%Y.%m.%d"),
-            "utctime": self.generator.time_object().strftime("%H:%M:%S"),
-            "whiteelo": self.random_int(min=1000, max=3000),
-            "blackelo": self.random_int(min=1000, max=3000),
-            "whiteratingdiff": self.random_int(min=-100, max=100),
-            "blackratingdiff": self.random_int(min=-100, max=100),
+            "utc_time": self.generator.time_object().strftime("%H:%M:%S"),
+            "white_elo": self.random_int(min=1000, max=3000),
+            "black_elo": self.random_int(min=1000, max=3000),
+            "white_rating_diff": self.random_int(min=-100, max=100),
+            "black_rating_diff": self.random_int(min=-100, max=100),
             "eco": opening[0],
             "opening": opening[1],
-            "timecontrol": event[1],
+            "time_control": event[1],
             "termination": self.random_element(["Normal", "Time forfeit", "Abandoned"]),
-            "main_line": opening[2],
+            "moves": opening[2],
         }
 
     def chess_game_pgn(self) -> str:
@@ -89,16 +89,16 @@ class ChessProvider(BaseProvider):
             [White "{game['white']}"]
             [Black "{game['black']}"]
             [Result "{game['result']}"]
-            [UTCDate "{game['utcdate']}"]
-            [UTCTime "{game['utctime']}"]
-            [WhiteElo "{game['whiteelo']}"]
-            [BlackElo "{game['blackelo']}"]
-            [WhiteRatingDiff "{game['whiteratingdiff']}"]
-            [BlackRatingDiff "{game['blackratingdiff']}"]
+            [UTCDate "{game['utc_date']}"]
+            [UTCTime "{game['utc_time']}"]
+            [WhiteElo "{game['white_elo']}"]
+            [BlackElo "{game['black_elo']}"]
+            [WhiteRatingDiff "{game['white_rating_diff']}"]
+            [BlackRatingDiff "{game['black_rating_diff']}"]
             [ECO "{game['eco']}"]
             [Opening "{game['opening']}"]
-            [TimeControl "{game['timecontrol']}"]
+            [TimeControl "{game['time_control']}"]
             [Termination "{game['termination']}"]
 
-            {game['main_line']} {game['result']}
+            {game['moves']} {game['result']}
         """
