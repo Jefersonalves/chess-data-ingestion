@@ -1,8 +1,8 @@
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 
 import pytest
 
-from chess_data_ingestion.data_flow import ChessMemoryDataSource
+from chess_data_ingestion.data_flow import ChessMemoryDataSource, LocalDestination
 
 
 class TestChessMemoryDataSource:
@@ -25,3 +25,11 @@ class TestChessMemoryDataSource:
         with patch.object(source.fake, "chess_game_pgn") as mock_chess_game_pgn:
             source.load(1)
             mock_chess_game_pgn.assert_called_once()
+
+
+class TestLocalDestination:
+    @patch("builtins.open", new_callable=mock_open)
+    def test_save(self, mock_write):
+        destination = LocalDestination("test.pgn")
+        destination.save([])
+        mock_write.assert_called_with(destination.path, "w")
