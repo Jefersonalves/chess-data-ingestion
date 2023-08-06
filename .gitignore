@@ -1,4 +1,5 @@
-data/*
-
 # also keep all .gitkeep files
 !.gitkeep
+
+data/*
+**/__pycache__/
