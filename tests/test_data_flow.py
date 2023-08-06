@@ -2,7 +2,11 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from chess_data_ingestion.data_flow import ChessMemoryDataSource, LocalDestination
+from chess_data_ingestion.data_flow import (
+    ChessDataIngestor,
+    ChessMemoryDataSource,
+    LocalDestination,
+)
 
 
 class TestChessMemoryDataSource:
@@ -33,3 +37,15 @@ class TestLocalDestination:
         destination = LocalDestination("test.pgn")
         destination.save([])
         mock_write.assert_called_with(destination.path, "w")
+
+
+class TestChessDataIngestor:
+    @patch.object(LocalDestination, "save")
+    @patch.object(ChessMemoryDataSource, "load", return_value=[])
+    def test_run(self, mock_load, mock_save):
+        source = ChessMemoryDataSource()
+        destination = LocalDestination("test.pgn")
+        ingestor = ChessDataIngestor(source, destination)
+        ingestor.run(1)
+        mock_load.assert_called_once()
+        mock_save.assert_called_once()
