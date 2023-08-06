@@ -47,6 +47,6 @@ class TestChessDataIngestor:
         source = ChessMemoryDataSource()
         destination = LocalDestination()
         ingestor = ChessDataIngestor(source, destination)
-        ingestor.run(source_num_records=1, destination_path="test.pgn")
+        ingestor.run(destination_root_path="data")
         mock_load.assert_called_once()
         mock_save.assert_called_once()

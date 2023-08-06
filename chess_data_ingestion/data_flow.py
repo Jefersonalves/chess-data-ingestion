@@ -1,4 +1,7 @@
+import datetime
+import random
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List, Union
 
 from faker import Faker
@@ -37,6 +40,7 @@ class DataIngestor(ABC):
     def __init__(self, source: DataSource, destination: DataDestination) -> None:
         self.source = source
         self.destination = destination
+        self.excution_datetime = datetime.datetime.now()
 
     @abstractmethod
     def run(self, **kwargs) -> None:
@@ -44,6 +48,15 @@ class DataIngestor(ABC):
 
 
 class ChessDataIngestor(DataIngestor):
-    def run(self, source_num_records: int, destination_path: str) -> None:
-        data = self.source.load(num_records=source_num_records)
-        self.destination.save(data=data, path=destination_path)
+    def run(self, destination_root_path: str) -> None:
+        num_records = random.randint(100, 1000)
+        data = self.source.load(num_records=num_records)
+
+        extraction_date = self.excution_datetime.strftime("%Y-%m-%d")
+        extraction_time = self.excution_datetime.strftime("%H:%M:%S")
+
+        partition_path = f"{destination_root_path}/extracted_at={extraction_date}"
+        Path(partition_path).mkdir(parents=True, exist_ok=True)
+
+        destination_file_path = f"{partition_path}/{extraction_time}.pgn"
+        self.destination.save(data=data, path=destination_file_path)
