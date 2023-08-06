@@ -41,11 +41,11 @@ class DataIngestor(ABC):
         self.destination = destination
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self, **kwargs) -> None:
         pass
 
 
 class ChessDataIngestor(DataIngestor):
-    def run(self) -> None:
-        data = self.source.load(100)
-        self.destination.save(data)
+    def run(self, num_records) -> None:
+        data = self.source.load(num_records=num_records)
+        self.destination.save(data=data)
