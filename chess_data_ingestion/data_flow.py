@@ -3,7 +3,7 @@ from typing import List, Union
 
 from faker import Faker
 
-from .chess_provider import ChessProvider
+from chess_data_ingestion.chess_provider import ChessProvider
 
 
 class DataSource(ABC):
@@ -28,7 +28,7 @@ class DataDestination(ABC):
 
 
 class LocalDestination(DataDestination):
-    def save(self, data: List[str], path) -> None:
+    def save(self, data: List[str], path: str) -> None:
         with open(f"{path}", "w") as file:
             file.write("".join(data))
 
@@ -44,6 +44,6 @@ class DataIngestor(ABC):
 
 
 class ChessDataIngestor(DataIngestor):
-    def run(self, source_num_records, destination_path) -> None:
+    def run(self, source_num_records: int, destination_path: str) -> None:
         data = self.source.load(num_records=source_num_records)
         self.destination.save(data=data, path=destination_path)
