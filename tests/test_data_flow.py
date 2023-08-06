@@ -34,9 +34,10 @@ class TestChessMemoryDataSource:
 class TestLocalDestination:
     @patch("builtins.open", new_callable=mock_open)
     def test_save(self, mock_write):
-        destination = LocalDestination("test.pgn")
-        destination.save([])
-        mock_write.assert_called_with(destination.path, "w")
+        destination = LocalDestination()
+        destination_path = "test.pgn"
+        destination.save(data=[], path=destination_path)
+        mock_write.assert_called_with(destination_path, "w")
 
 
 class TestChessDataIngestor:
@@ -44,8 +45,8 @@ class TestChessDataIngestor:
     @patch.object(ChessMemoryDataSource, "load", return_value=[])
     def test_run(self, mock_load, mock_save):
         source = ChessMemoryDataSource()
-        destination = LocalDestination("test.pgn")
+        destination = LocalDestination()
         ingestor = ChessDataIngestor(source, destination)
-        ingestor.run(1)
+        ingestor.run(source_num_records=1, destination_path="test.pgn")
         mock_load.assert_called_once()
         mock_save.assert_called_once()

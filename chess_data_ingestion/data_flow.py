@@ -23,16 +23,13 @@ class ChessMemoryDataSource(DataSource):
 
 class DataDestination(ABC):
     @abstractmethod
-    def save(self, data: Union[List[str], List[dict]]) -> None:
+    def save(self, data: Union[List[str], List[dict]], **kwargs) -> None:
         pass
 
 
 class LocalDestination(DataDestination):
-    def __init__(self, path: str) -> None:
-        self.path = path
-
-    def save(self, data: List[str]) -> None:
-        with open(f"{self.path}", "w") as file:
+    def save(self, data: List[str], path) -> None:
+        with open(f"{path}", "w") as file:
             file.write("".join(data))
 
 
@@ -47,6 +44,6 @@ class DataIngestor(ABC):
 
 
 class ChessDataIngestor(DataIngestor):
-    def run(self, num_records) -> None:
-        data = self.source.load(num_records=num_records)
-        self.destination.save(data=data)
+    def run(self, source_num_records, destination_path) -> None:
+        data = self.source.load(num_records=source_num_records)
+        self.destination.save(data=data, path=destination_path)
