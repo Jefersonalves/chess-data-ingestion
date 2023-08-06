@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-from chess_provider import ChessProvider
 from faker import Faker
+
+from .chess_provider import ChessProvider
 
 
 class DataSource(ABC):
