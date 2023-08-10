@@ -57,10 +57,12 @@ class LocalDestination(DataDestination):
 
 
 class S3Destination(DataDestination):
-    def __init__(self, bucket_name: str, table_name: str) -> None:
+    def __init__(
+        self, bucket_name: str, table_name: str, s3_client=boto3.client("s3")
+    ) -> None:
         self.bucket_name = bucket_name
         self.table_name = table_name
-        self.s3 = boto3.client("s3")
+        self.s3 = s3_client
 
     def save(
         self,

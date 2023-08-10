@@ -6,6 +6,7 @@ from chess_data_ingestion.data_flow import (
     ChessDataIngestor,
     ChessMemoryDataSource,
     LocalDestination,
+    S3Destination,
 )
 
 
@@ -37,6 +38,24 @@ class TestLocalDestination:
         destination = LocalDestination(root_path="test", table_name="test")
         destination.save(data=[], file_format="pgn")
         mock_write.assert_called_once()
+
+
+def mocked_s3_client(*args):
+    class MockS3Client:
+        def put_object(self, **kwargs):
+            pass
+
+    return MockS3Client()
+
+
+class TestS3Destination:
+    @patch("boto3.client", side_effect=mocked_s3_client)
+    def test_save(self, mock_client):
+        destination = S3Destination(
+            bucket_name="test", table_name="test", s3_client=mock_client
+        )
+        destination.save(data=[], file_format="pgn")
+        mock_client.put_object.assert_called_once()
 
 
 class TestChessDataIngestor:
