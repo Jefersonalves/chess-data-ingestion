@@ -32,57 +32,70 @@ class DataDestination(ABC):
 
 
 class LocalDestination(DataDestination):
-    def save(self, data: List[str], path: str) -> None:
-        with open(f"{path}", "w") as file:
+    def __init__(self, root_path: str, table_name: str) -> None:
+        self.root_path = root_path
+        self.table_name = table_name
+
+    def save(
+        self,
+        data: List[str],
+        file_format,
+        excution_datetime: datetime = datetime.datetime.now(),
+    ) -> None:
+        extraction_date = excution_datetime.strftime("%Y-%m-%d")
+        extraction_time = excution_datetime.strftime("%H_%M_%S")
+
+        partition_path = Path(
+            f"{self.root_path}/{self.table_name}/" f"extracted_at={extraction_date}/"
+        )
+        partition_path.mkdir(parents=True, exist_ok=True)
+        file_name = f"{extraction_time}.{file_format}"
+        file_path = partition_path / file_name
+
+        with open(file_path, "w") as file:
             file.write("".join(data))
 
 
 class S3Destination(DataDestination):
-    def __init__(self) -> None:
+    def __init__(self, bucket_name: str, table_name: str) -> None:
+        self.bucket_name = bucket_name
+        self.table_name = table_name
         self.s3 = boto3.client("s3")
 
-    def save(self, data: List[str], bucket_name: str, path: str) -> None:
-        self.s3.put_object(Bucket=bucket_name, Body="".join(data), Key=path)
+    def save(
+        self,
+        data: List[str],
+        file_format,
+        excution_datetime: datetime = datetime.datetime.now(),
+    ) -> None:
+        extraction_date = excution_datetime.strftime("%Y-%m-%d")
+        extraction_time = excution_datetime.strftime("%H_%M_%S")
+
+        file_path = (
+            f"{self.table_name}/extracted_at={extraction_date}/"
+            f"{extraction_time}.{file_format}"
+        )
+
+        self.s3.put_object(Bucket=self.bucket_name, Body="".join(data), Key=file_path)
 
 
 class DataIngestor(ABC):
     def __init__(self, source: DataSource, destination: DataDestination) -> None:
         self.source = source
         self.destination = destination
-        self.excution_datetime = datetime.datetime.now()
 
     @abstractmethod
     def run(self, **kwargs) -> None:
         pass
 
 
-class S3ChessDataIngestor(DataIngestor):
-    def run(self, bucket_name, destination_root_path: str) -> None:
-        num_records = random.randint(100, 1000)
-        data = self.source.load(num_records=num_records)
-
-        extraction_date = self.excution_datetime.strftime("%Y-%m-%d")
-        extraction_time = self.excution_datetime.strftime("%H:%M:%S")
-
-        destination_file_path = (
-            f"{destination_root_path}/extracted_at={extraction_date}/"
-            f"{extraction_time}.pgn"
-        )
-        self.destination.save(
-            data=data, bucket_name=bucket_name, path=destination_file_path
-        )
-
-
 class ChessDataIngestor(DataIngestor):
-    def run(self, destination_root_path: str) -> None:
+    def run(self) -> None:
+        excution_datetime = datetime.datetime.now()
+
         num_records = random.randint(100, 1000)
         data = self.source.load(num_records=num_records)
 
-        extraction_date = self.excution_datetime.strftime("%Y-%m-%d")
-        extraction_time = self.excution_datetime.strftime("%H:%M:%S")
-
-        partition_path = f"{destination_root_path}/extracted_at={extraction_date}"
-        Path(partition_path).mkdir(parents=True, exist_ok=True)
-
-        destination_file_path = f"{partition_path}/{extraction_time}.pgn"
-        self.destination.save(data=data, path=destination_file_path)
+        self.destination.save(
+            data=data, file_format="pgn", excution_datetime=excution_datetime
+        )
