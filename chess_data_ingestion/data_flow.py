@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Union
 
+import boto3
 from faker import Faker
 
 from chess_data_ingestion.chess_provider import ChessProvider
@@ -36,6 +37,14 @@ class LocalDestination(DataDestination):
             file.write("".join(data))
 
 
+class S3Destination(DataDestination):
+    def __init__(self) -> None:
+        self.s3 = boto3.client("s3")
+
+    def save(self, data: List[str], bucket_name: str, path: str) -> None:
+        self.s3.put_object(Bucket=bucket_name, Body="".join(data), Key=path)
+
+
 class DataIngestor(ABC):
     def __init__(self, source: DataSource, destination: DataDestination) -> None:
         self.source = source
@@ -45,6 +54,23 @@ class DataIngestor(ABC):
     @abstractmethod
     def run(self, **kwargs) -> None:
         pass
+
+
+class S3ChessDataIngestor(DataIngestor):
+    def run(self, bucket_name, destination_root_path: str) -> None:
+        num_records = random.randint(100, 1000)
+        data = self.source.load(num_records=num_records)
+
+        extraction_date = self.excution_datetime.strftime("%Y-%m-%d")
+        extraction_time = self.excution_datetime.strftime("%H:%M:%S")
+
+        destination_file_path = (
+            f"{destination_root_path}/extracted_at={extraction_date}/"
+            f"{extraction_time}.pgn"
+        )
+        self.destination.save(
+            data=data, bucket_name=bucket_name, path=destination_file_path
+        )
 
 
 class ChessDataIngestor(DataIngestor):
