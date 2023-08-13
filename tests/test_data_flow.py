@@ -1,6 +1,8 @@
 from unittest.mock import mock_open, patch
 
+import botocore.session
 import pytest
+from botocore.stub import ANY, Stubber
 
 from chess_data_ingestion.data_flow import (
     ChessDataIngestor,
@@ -28,7 +30,7 @@ class TestChessMemoryDataSource:
     def test_load_calls_chess_game_pgn(self):
         source = ChessMemoryDataSource()
         with patch.object(source.fake, "chess_game_pgn") as mock_chess_game_pgn:
-            source.load(1)
+            source.load(num_records=1, type="pgn")
             mock_chess_game_pgn.assert_called_once()
 
 
@@ -40,22 +42,25 @@ class TestLocalDestination:
         mock_write.assert_called_once()
 
 
-def mocked_s3_client(*args):
-    class MockS3Client:
-        def put_object(self, **kwargs):
-            pass
-
-    return MockS3Client()
-
-
 class TestS3Destination:
-    @patch("boto3.client", side_effect=mocked_s3_client)
-    def test_save(self, mock_client):
-        destination = S3Destination(
-            bucket_name="test", table_name="test", s3_client=mock_client
+    def test_save(self):
+        session = botocore.session.get_session()
+        s3 = session.create_client("s3")
+        stubber = Stubber(s3)
+        stubber.add_response(
+            "put_object",
+            {},
+            {
+                "Bucket": "test",
+                "Key": ANY,
+                "Body": "",
+            },
         )
+
+        destination = S3Destination(bucket_name="test", table_name="test", s3_client=s3)
+        stubber.activate()
         destination.save(data=[], file_format="pgn")
-        mock_client.put_object.assert_called_once()
+        stubber.assert_no_pending_responses()
 
 
 class TestChessDataIngestor:
