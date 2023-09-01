@@ -34,8 +34,8 @@ chess_data_ingestion -d s3 --bucket_name <bucket> --table_name <table>
 ```
 
 This outputs a json file in the specified location.
-The json file is a list of dictionaries, each dictionary representing a chess game.
-Each dictionary has the following keys:
+The file is a malformed json to be compatible with AWS Athena, each line has a record representing a chess game.
+The records has the following keys:
 
 - `event`: The name of the event
 - `site`: The name of the site
