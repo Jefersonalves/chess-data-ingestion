@@ -12,6 +12,8 @@ pip install .
 
 ## Usage
 
+### CLI
+
 To perform a local ingestion, run:
 
 ```bash
@@ -52,6 +54,31 @@ Each dictionary has the following keys:
 - `termination`: The termination mode of the game, e.g. normal, time forfeit, abandoned
 - `moves`: The moves of the game using the algebraic notation
 
+The generated records are like:
+
+```json
+{
+    "event": "Rated Blitz game",
+    "site": "https://www.chess.com",
+    "white": "hdias",
+    "black": "slima",
+    "result": "1-0",
+    "utc_date": "2022.11.23",
+    "utc_time": "06:54:54",
+    "white_elo": 2629,
+    "black_elo": 2532,
+    "white_rating_diff": 89,
+    "black_rating_diff": 38,
+    "eco": "E60",
+    "opening": "Kings Indian Defense",
+    "time_control": "300+0",
+    "termination": "Normal",
+    "moves": "1. d4 Nf6 2. c4 g6 3. Nc3 Bg7"
+}
+```
+
+### Module
+
 If you need to create your own fake data, you can import and use the `chess_data_ingestion` module like this:
 
 ```python
@@ -86,3 +113,7 @@ To run the tests, execute:
 ```bash
 poetry run pytest
 ```
+
+## Extension
+
+The project can be easily extended to support another chess data sources and destinations by creating your own DataIngestor
