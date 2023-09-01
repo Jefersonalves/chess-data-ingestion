@@ -90,8 +90,9 @@ class LocalDestination(DataDestination):
         write_strategy(data=data, file_path=file_path)
 
     def _write_json(self, data: List[dict], file_path: str) -> None:
-        with open(file_path, "w") as file:
-            json.dump(data, file)
+        for entry in data:
+            with open(file_path, "a") as file:
+                json.dump(entry, file)
 
     def _write_pgn(self, data: List[str], file_path: str) -> None:
         with open(file_path, "w") as file:
@@ -121,7 +122,9 @@ class S3Destination(DataDestination):
         )
 
         if file_format == "json":
-            body = json.dumps(data)
+            entry_list = [json.dumps(entry) for entry in data]
+            body = "\n".join(entry_list)
+
         elif file_format == "pgn":
             body = "\n".join(data)
         else:
